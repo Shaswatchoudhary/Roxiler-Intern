@@ -23,6 +23,8 @@ import { toast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Eye, EyeOff } from "lucide-react";
 import { AuthRedirect } from "@/components/AuthRedirect";
+import PasswordStrength from "@/components/PasswordStrength";
+import { User, Store, Shield } from "lucide-react";
 
 /**
  * Compressed Auth component — same behavior, smaller footprint.
@@ -44,9 +46,9 @@ const validators = {
 };
 
 /* Small presentational helpers to reduce repetition */
-function Field({ id, label, children, error }) {
+function Field({ id, label, children, error, className }) {
   return (
-    <div>
+    <div className={className}>
       <Label htmlFor={id} className="text-sm text-gray-700">{label}</Label>
       {children}
       {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
@@ -77,9 +79,6 @@ function PasswordInput({ id, value, onChange, showPassword, setShowPassword, pla
   );
 }
 
-/* -----------------------
-   Component
-   ----------------------- */
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -97,8 +96,7 @@ export default function Auth() {
     role: "user",
   });
   const [errors, setErrors] = useState({});
-
-  /* Redirect when logged in (unchanged) */
+//redirect when logged in
   useEffect(() => {
     if (user && profile) {
       const from = location.state && location.state.from;
@@ -119,9 +117,7 @@ export default function Auth() {
 
   if (user && profile) return <AuthRedirect />;
 
-  /* -----------------------
-     Handlers (behavior preserved)
-     ----------------------- */
+//login handler
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -149,6 +145,7 @@ export default function Auth() {
     }
   };
 
+//signup handler
   const handleSignup = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -184,9 +181,7 @@ export default function Auth() {
     }
   };
 
-  /* -----------------------
-     UI — reduced repetition using helpers
-     ----------------------- */
+//render auth form
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-md bg-white border border-gray-200 rounded-xl shadow">
@@ -242,12 +237,35 @@ export default function Auth() {
                   <PasswordInput id="signup-password" value={signupForm.password}
                     onChange={(e) => setSignupForm((p) => ({ ...p, password: e.target.value }))}
                     showPassword={showPassword} setShowPassword={setShowPassword} placeholder="8+ chars, 1 upper, 1 special" required />
+                  <PasswordStrength password={signupForm.password} />
                 </Field>
 
                 <Field id="confirm-password" label="Confirm password" error={errors.confirmPassword}>
-                  <Input id="confirm-password" type="password" value={signupForm.confirmPassword}
-                    onChange={(e) => setSignupForm((p) => ({ ...p, confirmPassword: e.target.value }))}
-                    placeholder="Repeat password" className="mt-1" required />
+                  <div className="relative">
+                    <Input 
+                      id="confirm-password" 
+                      type={showPassword ? "text" : "password"} 
+                      value={signupForm.confirmPassword}
+                      onChange={(e) => setSignupForm((p) => ({ ...p, confirmPassword: e.target.value }))}
+                      placeholder="Repeat password" 
+                      className={`mt-1 pr-10 ${signupForm.password && signupForm.confirmPassword && signupForm.password !== signupForm.confirmPassword ? 'border-red-500' : ''} ${signupForm.password && signupForm.confirmPassword && signupForm.password === signupForm.confirmPassword ? 'border-green-500' : ''}`}
+                      required 
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {signupForm.password && signupForm.confirmPassword && (
+                    <p className={`mt-1 text-xs ${signupForm.password === signupForm.confirmPassword ? 'text-green-600' : 'text-red-600'}`}>
+                      {signupForm.password === signupForm.confirmPassword 
+                        ? 'Passwords match!' 
+                        : 'Passwords do not match'}
+                    </p>
+                  )}
                 </Field>
 
                 <Field id="signup-address" label="Address (optional)" error={errors.address}>
@@ -256,15 +274,51 @@ export default function Auth() {
                     className="mt-1" rows={3} maxLength={400} />
                 </Field>
 
-                <Field id="signup-role" label="Account type">
-                  <Select value={signupForm.role} onValueChange={(value) => setSignupForm((p) => ({ ...p, role: value }))}>
-                    <SelectTrigger className="mt-1"><SelectValue placeholder="Select account type" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="user">Customer</SelectItem>
-                      <SelectItem value="store_owner">Store Owner</SelectItem>
-                      <SelectItem value="admin">Administrator</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <Field id="signup-role" label="Account type" className="mb-4">
+                  <div className="space-y-2">
+                    <Select 
+                      value={signupForm.role} 
+                      onValueChange={(value) => setSignupForm((p) => ({ ...p, role: value }))}
+                    >
+                      <SelectTrigger className="w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900">
+                        <SelectValue placeholder="Select account type" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border border-gray-200 rounded-md shadow-lg">
+                        <SelectItem 
+                          value="user" 
+                          className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-gray-900"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <User className="h-4 w-4 text-blue-600" />
+                            <span>Customer</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem 
+                          value="store_owner" 
+                          className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-gray-900"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <Store className="h-4 w-4 text-green-600" />
+                            <span>Store Owner</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem 
+                          value="admin" 
+                          className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-gray-900"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <Shield className="h-4 w-4 text-purple-600" />
+                            <span>Administrator</span>
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {signupForm.role === 'user' && 'Create a customer account to browse and rate stores'}
+                      {signupForm.role === 'store_owner' && 'Register as a store owner to manage your business'}
+                      {signupForm.role === 'admin' && 'Admin access for platform management'}
+                    </p>
+                  </div>
                 </Field>
 
                 <Button type="submit" className="w-full py-2 rounded bg-gray-900 text-white" disabled={isLoading}>

@@ -76,7 +76,7 @@ export default function StoresListing() {
             ...store,
             owner: {
               name: ownerName,
-              ...store.owner
+              ...store.owner //using spreas operator to include all the owner data
             }
           };
         });

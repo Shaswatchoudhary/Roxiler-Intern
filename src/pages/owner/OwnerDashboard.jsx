@@ -133,7 +133,6 @@ export default function OwnerDashboard() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-        {/* Minimal header */}
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">Owner Dashboard</h1>
           <p className="text-sm text-gray-600">

@@ -43,13 +43,12 @@ export function AppHeader() {
               className="btn btn-ghost p-2 rounded-md text-slate-700 hover:bg-gray-100 flex items-center justify-center"
               aria-label="Toggle sidebar"
             >
-              <Menu className="h-5 w-5" /> {/* 👈 replaced default with Menu icon */}
+              <Menu className="h-5 w-5" /> 
             </SidebarTrigger>
 
             <h1 className="text-lg font-bold text-slate-800">StoreRatings</h1>
           </div>
 
-          {/* RIGHT: profile menu */}
           <div className="flex items-center gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

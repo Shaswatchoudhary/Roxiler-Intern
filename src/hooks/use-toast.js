@@ -7,7 +7,7 @@ const actionTypes = {
   ADD_TOAST: "ADD_TOAST",
   UPDATE_TOAST: "UPDATE_TOAST",
   DISMISS_TOAST: "DISMISS_TOAST",
-  REMOVE_TOAST: "REMOVE_TOAST",
+  REMOVE_TOAST: "REMOVE_TOAST", //actionTypes is an object that contains the action types for the toast
 };
 
 let count = 0;
@@ -25,7 +25,7 @@ const addToRemoveQueue = (toastId) => {
   }
 
   const timeout = setTimeout(() => {
-    toastTimeouts.delete(toastId);
+    toastTimeouts.delete(toastId);//toastTimeouts is a map that stores the timeout for each toast
     dispatch({
       type: "REMOVE_TOAST",
       toastId: toastId,
@@ -45,7 +45,7 @@ export const reducer = (state, action) => {
 
     case "UPDATE_TOAST":
       return {
-        ...state,
+        ...state, //using the spread operator to copy the state
         toasts: state.toasts.map((t) =>
           t.id === action.toast.id ? { ...t, ...action.toast } : t
         ),

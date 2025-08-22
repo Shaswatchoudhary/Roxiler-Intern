@@ -12,23 +12,23 @@ const PasswordStrength = ({ password = '' }) => {
     let score = 0;
     const feedback = [];
     
-    // Length check
+    // length check to check if the password is at least 8 characters long
     if (pass.length >= 8) score += 1;
     else feedback.push('Use at least 8 characters');
     
-    // Lowercase check
+    // lowercase check to check if the password contains lowercase letters
     if (/[a-z]/.test(pass)) score += 1;
     else feedback.push('Add lowercase letters');
     
-    // Uppercase check
+    // uppercase check to check if the password contains uppercase letters
     if (/[A-Z]/.test(pass)) score += 1;
     else feedback.push('Add uppercase letters');
     
-    // Number check
+    // number check to check if the password contains numbers
     if (/[0-9]/.test(pass)) score += 1;
     else feedback.push('Add numbers');
     
-    // Special character check
+    // special character check to check if the password contains special characters
     if (/[^A-Za-z0-9]/.test(pass)) score += 1;
     else feedback.push('Add special characters');
 
@@ -39,7 +39,7 @@ const PasswordStrength = ({ password = '' }) => {
     const { score, feedback } = calculateStrength(password);
     setStrength(score);
     setFeedback(feedback.length > 0 ? `Try adding: ${feedback.join(', ')}` : 'Strong password!');
-  }, [password, calculateStrength]);
+  }, [password, calculateStrength]); // useEffect is used to update the strength and feedback when the password changes
 
   const getStrengthColor = () => {
     if (!password) return 'bg-gray-200';
@@ -55,7 +55,7 @@ const PasswordStrength = ({ password = '' }) => {
     if (strength <= 3) return 'Moderate';
     if (strength <= 4) return 'Strong';
     return 'Very Strong';
-  };
+  }; 
 
   if (!password) return null;
 
@@ -63,7 +63,7 @@ const PasswordStrength = ({ password = '' }) => {
     <div className="w-full mt-2">
       <div className="flex justify-between text-xs text-gray-500 mb-1">
         <span>Password Strength: {getStrengthText()}</span>
-        <span>{strength * 20}%</span>
+        <span>{strength * 20}%</span>{ /* strength * 20% is used to calculate the width of the progress bar */ }
       </div>
       <div className="w-full bg-gray-200 rounded-full h-2">
         <div 

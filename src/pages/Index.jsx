@@ -5,12 +5,6 @@ import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { ShoppingBag } from "lucide-react";
 
-/**
- * Minimal landing page (black & white).
- * - Only ShoppingBag icon kept in hero.
- * - Everything else simplified.
- */
-
 const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -56,7 +50,6 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Features - text only, no icons */}
       <main className="max-w-6xl mx-auto px-4 pb-12">
         <section className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <Card className="bg-white border border-gray-200">
@@ -81,7 +74,6 @@ const Index = () => {
           </Card>
         </section>
 
-        {/* Simple stats */}
         <section className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
           <div>
             <div className="text-2xl font-bold">1,000+</div>

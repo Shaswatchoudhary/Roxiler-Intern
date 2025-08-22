@@ -7,14 +7,14 @@ export function StarRating({
   onChange,
   readonly = false,
   size = "md",
-  showValue = false,
+  showValue = false, //showValue is a boolean that determines whether to show the value of the rating
 }) {
-  const [hoverValue, setHoverValue] = useState(0);
+  const [hoverValue, setHoverValue] = useState(0); //hoverValue is the value of the star that is hovered
 
   const sizeClasses = {
     sm: "w-4 h-4",
     md: "w-5 h-5",
-    lg: "w-6 h-6",
+    lg: "w-6 h-6", //sizeClasses is an object that contains the size of the star
   };
 
   const handleClick = (rating) => {
@@ -67,7 +67,7 @@ export function StarRating({
       </div>
       {showValue && (
         <span className="text-sm text-muted-foreground ml-1">
-          ({value.toFixed(1)})
+          ({value.toFixed(1)}) {/* value.toFixed(1) is used to round the value to 1 decimal place */}
         </span>
       )}
     </div>

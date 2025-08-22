@@ -44,7 +44,6 @@ export default function StoreDetail() {
     if (id) {
       fetchStoreDetail();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, user]);
 
   const fetchStoreDetail = async () => {
@@ -356,7 +355,7 @@ export default function StoreDetail() {
                     <div>
                       <label className="text-sm font-medium mb-2 block">Rating</label>
 
-                      {/* star + numeric badge (presentation only) */}
+                      {/* star + numeric badge  */}
                       <div className="flex items-center gap-3">
                         <div className="star-wrapper text-yellow-500">
                           <StarRating

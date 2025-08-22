@@ -90,5 +90,5 @@ export function ProtectedRoute({ children, roles }) {
     );
   }
 
-  return <>{children}</>;
+  return <>{children}</>; //the children are the components that are protected when the user is authenticated
 }

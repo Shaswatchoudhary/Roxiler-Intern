@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
+  useEffect(() => { //in this case useEffect is used to update the state when the user's authentication state changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
@@ -40,7 +40,7 @@ export function AuthProvider({ children }) {
       }
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => { //in this case useEffect is used to update the state when the user's authentication state changes as supabase.auth.getSession() is called only once
       setSession(session);
       setUser(session?.user ?? null);
 
@@ -57,12 +57,16 @@ export function AuthProvider({ children }) {
   }, []);
 
   const fetchProfile = async (userId) => {
+    //by try and catch the supabase client is protected from errors
+    //and we handle the error in the catch block
+    //mainly fetch all the data from the profiles table where the id is equal to the userId 
+    //we are using sql so for that we have selected the * as we want to fetch all the data
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .maybeSingle();
+        .select("*") //selecting all the data from the profiles table
+        .eq("id", userId) //equating the id to the userId
+        .maybeSingle(); //returning a single row
 
       if (error) {
         console.error("Error fetching profile:", error);
@@ -82,6 +86,8 @@ export function AuthProvider({ children }) {
   };
 
   const signIn = async (email, password) => {
+    //signIn is a function that takes email and password as parameters
+    //it returns an error if there is an error
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -97,7 +103,7 @@ export function AuthProvider({ children }) {
   const signUp = async (email, password, userData) => {
     setLoading(true);
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/`;//redirectUrl is the url that the user will be redirected to after signing up
 
       const { error } = await supabase.auth.signUp({
         email,

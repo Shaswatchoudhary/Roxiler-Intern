@@ -47,7 +47,6 @@ export default function AdminStores() {
 
   useEffect(() => {
     fetchStores();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, search, ratingFilter, sortField, sortDirection]);
 
   const fetchStores = async () => {

@@ -5,7 +5,8 @@ const env =
   typeof import.meta !== "undefined" && import.meta.env
     ? import.meta.env
     : undefined;
-
+//this is used to access the environment variables 
+//to mainly access the supabase url and the supabase anon key
 const supabaseUrl =
   env?.VITE_SUPABASE_URL ??
   (typeof process !== "undefined"
@@ -16,9 +17,9 @@ const supabaseUrl =
     : undefined) ??
   (typeof process !== "undefined"
     ? process.env?.REACT_APP_SUPABASE_URL
-    : undefined);
+    : undefined); //this is used to access the environment variables to mainly access the supabase url and the supabase anon key
 
-const supabaseAnonKey =
+const supabaseAnonKey = //both the anon key and the supabase url are used to connect to the supabase database
   env?.VITE_SUPABASE_ANON_KEY ??
   (typeof process !== "undefined"
     ? process.env?.VITE_SUPABASE_ANON_KEY
@@ -33,7 +34,8 @@ const supabaseAnonKey =
 if (!supabaseUrl || !supabaseAnonKey) {
   const missing = [
     !supabaseUrl ? "VITE_SUPABASE_URL" : null,
-    !supabaseAnonKey ? "VITE_SUPABASE_ANON_KEY" : null,
+    !supabaseAnonKey ? "VITE_SUPABASE_ANON_KEY" : null, //checking if the supabase url and the supabase anon key are present
+    //and also to check connection to the supabase database
   ]
     .filter(Boolean)
     .join(", ");

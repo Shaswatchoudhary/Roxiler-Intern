@@ -35,12 +35,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 
-/**
- * MyRatings (presentation-only update)
- * - Light / white theme
- * - Clear spacing, consistent card styles, readable typography
- * - No logic changes
- */
+
 export default function MyRatings() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -55,7 +50,6 @@ export default function MyRatings() {
     if (user) {
       fetchRatings();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, searchTerm, sortBy, sortOrder, filterScore]);
 
   const fetchRatings = async () => {
@@ -151,7 +145,6 @@ export default function MyRatings() {
     return sortOrder === "asc" ? " ↑" : " ↓";
   };
 
-  // Loading skeleton (light)
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 text-slate-900 py-12 px-4 sm:px-6">

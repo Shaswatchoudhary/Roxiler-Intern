@@ -10,7 +10,6 @@ import {
 import { Users, Store, Star, UserCheck } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// The AdminDashboard component fetches and displays key metrics
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
     totalUsers: 0,

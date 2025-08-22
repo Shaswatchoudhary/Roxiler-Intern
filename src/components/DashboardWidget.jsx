@@ -12,7 +12,7 @@ export function DashboardWidget({
   children,
   variant = "default",
 }) {
-  const getChangeColor = (type) => {
+  const getChangeColor = (type) => {//getChangeColor is a function that returns the color of the change
     switch (type) {
       case "positive":
         return "text-success";
@@ -23,7 +23,7 @@ export function DashboardWidget({
     }
   };
 
-  const getCardVariant = (variant) => {
+  const getCardVariant = (variant) => {//getCardVariant is a function that returns the variant of the card
     switch (variant) {
       case "stats":
         return "card-stats";
@@ -35,7 +35,8 @@ export function DashboardWidget({
   };
 
   return (
-    <Card className={cn("stat-card", getCardVariant(variant), className)}>
+    <Card className={cn("stat-card", getCardVariant(variant), className)}> 
+    {/* cn is a function that returns the className of the card */}
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}

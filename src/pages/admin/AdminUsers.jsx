@@ -50,7 +50,6 @@ export default function AdminUsers() {
 
   useEffect(() => {
     fetchUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, search, roleFilter, sortField, sortDirection]);
 
   const fetchUsers = async () => {

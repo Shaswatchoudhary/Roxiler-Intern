@@ -43,7 +43,6 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// A minimal StarRating component for a black & white theme
 const MinimalStarRating = ({ value }) => {
   return (
     <div className="flex items-center gap-0.5">
@@ -76,7 +75,6 @@ export default function OwnerStores() {
 
   useEffect(() => {
     if (profile) fetchStores();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile, searchTerm, sortBy, sortOrder]);
 
   const fetchStores = async () => {
@@ -208,7 +206,6 @@ export default function OwnerStores() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div className="flex items-center gap-3">
           <div className="p-2 border rounded border-black bg-white">

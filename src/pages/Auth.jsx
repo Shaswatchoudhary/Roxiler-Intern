@@ -26,13 +26,6 @@ import { AuthRedirect } from "@/components/AuthRedirect";
 import PasswordStrength from "@/components/PasswordStrength";
 import { User, Store, Shield } from "lucide-react";
 
-/**
- * Compressed Auth component — same behavior, smaller footprint.
- */
-
-/* -----------------------
-   Helpers & validators
-   ----------------------- */
 const validators = {
   name: (v) => (v.length < 20 ? "Name must be at least 20 characters" : v.length > 60 ? "Name must not exceed 60 characters" : ""),
   address: (v) => (v.length > 400 ? "Address must not exceed 400 characters" : ""),
@@ -45,7 +38,6 @@ const validators = {
   email: (v) => (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? "" : "Please enter a valid email address"),
 };
 
-/* Small presentational helpers to reduce repetition */
 function Field({ id, label, children, error, className }) {
   return (
     <div className={className}>

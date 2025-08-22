@@ -44,6 +44,7 @@ export default function StoreDetail() {
     if (id) {
       fetchStoreDetail();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, user]);
 
   const fetchStoreDetail = async () => {
@@ -60,9 +61,7 @@ export default function StoreDetail() {
           address,
           average_rating,
           ratings_count,
-          profiles!stores_owner_id_fkey (
-            name
-          )
+          owner:profiles!stores_owner_id_fkey(name, email)
         `
         )
         .eq("id", id)
@@ -70,9 +69,15 @@ export default function StoreDetail() {
 
       if (storeError) throw storeError;
 
+      // If owner data is missing, use store email as fallback
+      const ownerName = storeData.owner?.name || storeData.email.split('@')[0] || 'Store Owner';
+      
       setStore({
         ...storeData,
-        owner: storeData.profiles || { name: "Unknown" },
+        owner: {
+          name: ownerName,
+          ...storeData.owner
+        },
       });
 
       const { data: ratingsData, error: ratingsError } = await supabase
@@ -227,7 +232,7 @@ export default function StoreDetail() {
     }
   };
 
-  if (loading) {
+  if (loading) { //if loading 
     return (
       <div className="space-y-6">
         <Skeleton className="h-8 w-1/2 mb-6" />
@@ -250,7 +255,7 @@ export default function StoreDetail() {
     );
   }
 
-  if (!store) {
+  if (!store) {//if store is not found
     return (
       <div className="space-y-6">
         <Button variant="outline" onClick={() => navigate(-1)}>
@@ -272,7 +277,7 @@ export default function StoreDetail() {
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back
       </Button>
-
+      {/* store info */}
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
           <Card>
@@ -303,13 +308,15 @@ export default function StoreDetail() {
                 </span>
               </div>
 
-              <Separator />
+              <Separator /> {/* separator used to separate the address and rating */}
 
               <div className="text-sm text-muted-foreground">
-                <span className="font-medium">Managed by:</span> {store.owner.name}
+                <span className="font-medium">Managed by:</span> {store.owner.name} 
+                {/* Managed by {store.owner.name} with email {store.owner.email}  and we can see this in the database and on screen*/}
               </div>
             </CardContent>
           </Card>
+          {/* rating */}
 
           {user && (
             <Card>
@@ -319,6 +326,7 @@ export default function StoreDetail() {
                   Your Rating
                 </CardTitle>
               </CardHeader>
+              {/* your rating */}
               <CardContent className="space-y-4">
                 {userRating && !editing ? (
                   <div className="space-y-4">
@@ -335,6 +343,7 @@ export default function StoreDetail() {
                         "{userRating.comment}"
                       </p>
                     )}
+                    {/* edit and delete rating */}
                     <div className="flex gap-2">
                       <Button size="sm" variant="outline" onClick={startEditing}>
                         Edit Rating
@@ -355,7 +364,7 @@ export default function StoreDetail() {
                     <div>
                       <label className="text-sm font-medium mb-2 block">Rating</label>
 
-                      {/* star + numeric badge  */}
+                      {/* star + numeric badge (presentation only) */}
                       <div className="flex items-center gap-3">
                         <div className="star-wrapper text-yellow-500">
                           <StarRating
@@ -364,6 +373,7 @@ export default function StoreDetail() {
                             size="lg"
                           />
                         </div>
+                        
 
                         <span
                           className="inline-flex items-center px-2 py-0.5 rounded-md bg-yellow-50 text-yellow-700 text-sm font-semibold"
@@ -373,6 +383,7 @@ export default function StoreDetail() {
                         </span>
                       </div>
                     </div>
+                    {/* comment */}
 
                     <div>
                       <label className="text-sm font-medium mb-2 block">Comment (optional)</label>
@@ -383,6 +394,7 @@ export default function StoreDetail() {
                         rows={3}
                       />
                     </div>
+                    {/* submit rating */}
 
                     <div className="flex gap-2">
                       <Button onClick={handleRatingSubmit} disabled={submitting || newRating.score === 0}>
@@ -399,6 +411,7 @@ export default function StoreDetail() {
               </CardContent>
             </Card>
           )}
+          {/* if user is not logged in */}
 
           {!user && (
             <Card>
@@ -409,6 +422,7 @@ export default function StoreDetail() {
             </Card>
           )}
         </div>
+        {/* recent reviews */}
 
         <div className="space-y-6">
           <Card>

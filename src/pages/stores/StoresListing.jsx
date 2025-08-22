@@ -30,16 +30,16 @@ export default function StoresListing() {
 
   const fetchStores = async () => {
     try {
-      let query = supabase.from("stores").select(`
+      let query = supabase
+        .from("stores")
+        .select(`
           id,
           name,
           email,
           address,
           average_rating,
           ratings_count,
-          profiles!stores_owner_id_fkey (
-            name
-          )
+          owner:profiles!stores_owner_id_fkey(name, email)
         `);
 
       if (searchTerm) {
@@ -69,10 +69,17 @@ export default function StoresListing() {
           variant: "destructive",
         });
       } else if (data) {
-        const formattedStores = data.map((store) => ({
-          ...store,
-          owner: store.profiles || { name: "Unknown" },
-        }));
+        const formattedStores = data.map((store) => {
+          // If owner data is missing, use store email as fallback
+          const ownerName = store.owner?.name || store.email.split('@')[0] || 'Store Owner';
+          return {
+            ...store,
+            owner: {
+              name: ownerName,
+              ...store.owner
+            }
+          };
+        });
         setStores(formattedStores);
       }
     } catch (error) {
@@ -230,7 +237,7 @@ export default function StoresListing() {
                 </div>
 
                 <div className="text-xs text-muted">
-                  Managed by {store.owner.name}
+                  Managed by {store.owner.name} {/* Managed by {store.owner.name} with email {store.owner.email}  and we can see this in the database and on screen*/}
                 </div>
               </CardContent>
             </Card>

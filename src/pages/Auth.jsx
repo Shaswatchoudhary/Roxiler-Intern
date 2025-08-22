@@ -315,14 +315,13 @@ export default function Auth() {
                     required
                   />
                 </Field>
-
-                <Button
-                  type="submit"
-                  className="w-full py-2 rounded bg-gray-900 text-white"
-                  disabled={isLoggingIn}
-                >
-                  {isLoggingIn ? "Signing in..." : "Sign In"}
-                </Button>
+                <Button 
+                    type="submit" 
+                    className="w-full h-11 text-base font-medium bg-blue-600 hover:bg-blue-700" 
+                    disabled={isSigningUp}
+                  >
+                    {isSigningUp? "Signing in..." : "Sign in"}
+                  </Button>
               </form>
             </TabsContent>
 
@@ -444,54 +443,54 @@ export default function Auth() {
 
                 <Field id="signup-role" label="Account type" className="mb-4">
                   <div className="space-y-2">
-                    <Select
-                      value={signupForm.role}
-                      onValueChange={(value) =>
-                        setSignupForm((p) => ({ ...p, role: value }))
-                      }
+                    <Select 
+                      value={signupForm.role} 
+                      onValueChange={(value) => setSignupForm((p) => ({ ...p, role: value }))}
                     >
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger className="w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900">
                         <SelectValue placeholder="Select account type" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="user">
+                      <SelectContent className="bg-white border border-gray-200 rounded-md shadow-lg">
+                        <SelectItem 
+                          value="user" 
+                          className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-gray-900"
+                        >
                           <div className="flex items-center space-x-2">
-                            <User className="h-4 w-4" />
+                            <User className="h-4 w-4 text-blue-600" />
                             <span>Customer</span>
                           </div>
                         </SelectItem>
-                        <SelectItem value="store_owner">
+                        <SelectItem 
+                          value="store_owner" 
+                          className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-gray-900"
+                        >
                           <div className="flex items-center space-x-2">
-                            <Store className="h-4 w-4" />
+                            <Store className="h-4 w-4 text-green-600" />
                             <span>Store Owner</span>
                           </div>
                         </SelectItem>
-                        <SelectItem value="admin">
+                        <SelectItem 
+                          value="admin" 
+                          className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-gray-900"
+                        >
                           <div className="flex items-center space-x-2">
-                            <Shield className="h-4 w-4" />
+                            <Shield className="h-4 w-4 text-purple-600" />
                             <span>Administrator</span>
                           </div>
                         </SelectItem>
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-gray-500 mt-1">
-                      {signupForm.role === "user" &&
-                        "Create a customer account to browse and rate stores"}
-                      {signupForm.role === "store_owner" &&
-                        "Register as a store owner to manage your business"}
-                      {signupForm.role === "admin" &&
-                        "Admin access for platform management"}
+                      {signupForm.role === 'user' && 'Create a customer account to browse and rate stores'}
+                      {signupForm.role === 'store_owner' && 'Register as a store owner to manage your business'}
+                      {signupForm.role === 'admin' && 'Admin access for platform management'}
                     </p>
                   </div>
                 </Field>
 
-                <Button
-                  type="submit"
-                  className="w-full py-2 rounded bg-gray-900 text-white"
-                  disabled={isSigningUp}
-                >
-                  {isSigningUp ? "Creating account..." : "Create Account"}
-                </Button>
+                <Button type="submit" className="w-full h-11 text-base font-medium bg-blue-600 hover:bg-blue-700" disabled={isSigningUp}>
+                    {isSigningUp ? "Creating account..." : "Create Account"}
+                  </Button>
               </form>
             </TabsContent>
           </Tabs>

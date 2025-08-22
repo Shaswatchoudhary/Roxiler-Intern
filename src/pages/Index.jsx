@@ -42,7 +42,8 @@ const Index = () => {
         <div className="mt-5">
           <Button
             onClick={() => navigate("/auth")}
-            className="px-6 py-2 rounded-md bg-black text-white"
+            className="px-6 py-2 rounded-md bg-white text-blue-600 
+            hover:bg-blue-600 hover:text-white"
           >
             Get Started
           </Button>

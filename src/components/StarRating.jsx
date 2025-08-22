@@ -45,7 +45,7 @@ export function StarRating({
             key={star}
             type="button"
             className={cn(
-              "transition-colors",
+              "transition-transform",
               readonly ? "cursor-default" : "cursor-pointer hover:scale-110",
               sizeClasses[size]
             )}
@@ -58,8 +58,8 @@ export function StarRating({
               className={cn(
                 "transition-colors",
                 star <= displayValue
-                  ? "fill-star-filled text-star-filled"
-                  : "fill-star-empty text-star-empty"
+                  ? "fill-yellow-400 text-yellow-400"
+                  : "fill-gray-300 text-gray-300"
               )}
             />
           </button>

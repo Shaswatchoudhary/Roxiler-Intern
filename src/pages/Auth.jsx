@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -21,18 +21,14 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, EyeOff, User, Store, Shield } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { AuthRedirect } from "@/components/AuthRedirect";
 import PasswordStrength from "@/components/PasswordStrength";
+import { User, Store, Shield } from "lucide-react";
+
 
 const validators = {
-  // MIN 2, MAX 60 (previously showed an error if < 20)
-  name: (v) =>
-    v.trim().length < 2
-      ? "Name must be at least 2 characters"
-      : v.trim().length > 60
-      ? "Name must not exceed 60 characters"
-      : "",
+  name: (v) => (v.length < 20 ? "Name must be at least 20 characters" : v.length > 60 ? "Name must not exceed 60 characters" : ""),
   address: (v) => (v.length > 400 ? "Address must not exceed 400 characters" : ""),
   password: (v) => {
     if (v.length < 8 || v.length > 16) return "Password must be 8-16 characters";
@@ -44,7 +40,7 @@ const validators = {
 };
 
 function Field({ id, label, children, error, className }) {
-  return (
+  return (// main field component
     <div className={className}>
       <Label htmlFor={id} className="text-sm text-gray-700">{label}</Label>
       {children}
@@ -53,20 +49,13 @@ function Field({ id, label, children, error, className }) {
   );
 }
 
-function PasswordInput({
-  id,
-  value,
-  onChange,
-  show,
-  setShow,
-  placeholder = "••••••••",
-  required = false,
-}) {
+function PasswordInput({ id, value, onChange, showPassword, setShowPassword, placeholder = "••••••••", required = false }) // password input component
+ {
   return (
     <div className="relative mt-1">
       <Input
         id={id}
-        type={show ? "text" : "password"}
+        type={showPassword ? "text" : "password"}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
@@ -76,48 +65,20 @@ function PasswordInput({
         type="button"
         aria-label="Toggle password"
         className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
-        onClick={() => setShow((s) => !s)}
+        onClick={() => setShowPassword((s) => !s)}
       >
-        {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
       </button>
     </div>
   );
 }
 
 export default function Auth() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const { signIn, signUp, user, profile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn, signUp, user, profile } = useAuth();
-
-  // which "page": login or signup (sync with hash)
-  const initialTab = useMemo(() => {
-    const h = (location.hash || "").replace("#", "");
-    return h === "signup" ? "signup" : "login";
-  }, [location.hash]);
-
-  const [tab, setTab] = useState(initialTab);
-  useEffect(() => {
-    const h = (location.hash || "").replace("#", "");
-    if ((h === "login" || h === "signup") && h !== tab) setTab(h);
-  }, [location.hash, tab]);
-
-  // reflect tab changes into URL hash so you can deep-link
-  useEffect(() => {
-    const targetHash = `#${tab}`;
-    if (location.hash !== targetHash) {
-      // replace to avoid polluting history on tab switch
-      navigate({ hash: targetHash }, { replace: true });
-    }
-  }, [tab, navigate, location.hash]);
-
-  // loading flags split per form
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [isSigningUp, setIsSigningUp] = useState(false);
-
-  // independent visibility toggles
-  const [showLoginPassword, setShowLoginPassword] = useState(false);
-  const [showSignupPassword, setShowSignupPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [signupForm, setSignupForm] = useState({
@@ -129,316 +90,217 @@ export default function Auth() {
     role: "user",
   });
   const [errors, setErrors] = useState({});
-
-  // redirect when logged in
+//redirect when logged in
   useEffect(() => {
     if (user && profile) {
       const from = location.state && location.state.from;
-      if (from && from !== "/auth") {
-        navigate(from, { replace: true });
-      } else {
+      if (from && from !== "/auth") navigate(from, { replace: true });
+      else {
         switch (profile.role) {
           case "admin":
-            navigate("/admin/dashboard", { replace: true });
-            break;
+            navigate("/admin/dashboard", { replace: true }); break;
           case "store_owner":
-            navigate("/owner/dashboard", { replace: true });
-            break;
+            navigate("/owner/dashboard", { replace: true }); break;
           case "user":
           default:
-            navigate("/stores", { replace: true });
-            break;
+            navigate("/stores", { replace: true }); break;
         }
       }
     }
-  }, [user, profile, navigate, location.state]);
+  }, [user, profile, navigate, location]);
 
   if (user && profile) return <AuthRedirect />;
 
-  // login handler
+//login handler
   const handleLogin = async (e) => {
     e.preventDefault();
-    setIsLoggingIn(true);
+    setIsLoading(true);
     setErrors({});
-
     const emailErr = validators.email(loginForm.email);
-    if (emailErr) {
-      setErrors({ email: emailErr });
-      setIsLoggingIn(false);
-      return;
-    }
+    if (emailErr) { setErrors({ email: emailErr }); setIsLoading(false); return; }
 
     try {
       const result = await signIn(loginForm.email, loginForm.password);
       const { error, user: signedInUser } = result || {};
 
       if (error) {
-        toast({
-          title: "Login failed",
-          description: error.message || "Unable to login.",
-          variant: "destructive",
-        });
+        toast({ title: "Login failed", description: error.message || "Unable to login.", variant: "destructive" });
       } else {
         const name = signedInUser?.name ?? profile?.name;
         toast({
           title: "Welcome back!",
-          description: name
-            ? `You have been successfully logged in, ${name}.`
-            : "You have been successfully logged in.",
+          description: name ? `You have been successfully logged in, ${name}.` : "You have been successfully logged in.",
         });
       }
     } catch (err) {
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "An unexpected error occurred", variant: "destructive" });
     } finally {
-      setIsLoggingIn(false);
+      setIsLoading(false);
     }
   };
 
-  // signup handler
+
+//signup handler
   const handleSignup = async (e) => {
     e.preventDefault();
-    setIsSigningUp(true);
+    setIsLoading(true);
     setErrors({});
 
     const newErrors = {};
-    const nErr = validators.name(signupForm.name);
-    if (nErr) newErrors.name = nErr;
-    const emErr = validators.email(signupForm.email);
-    if (emErr) newErrors.email = emErr;
-    const pwErr = validators.password(signupForm.password);
-    if (pwErr) newErrors.password = pwErr;
-    if (signupForm.password !== signupForm.confirmPassword)
-      newErrors.confirmPassword = "Passwords do not match";
-    if (signupForm.address) {
-      const aErr = validators.address(signupForm.address);
-      if (aErr) newErrors.address = aErr;
-    }
+    const nErr = validators.name(signupForm.name); if (nErr) newErrors.name = nErr;
+    const emErr = validators.email(signupForm.email); if (emErr) newErrors.email = emErr;
+    const pwErr = validators.password(signupForm.password); if (pwErr) newErrors.password = pwErr;
+    if (signupForm.password !== signupForm.confirmPassword) newErrors.confirmPassword = "Passwords do not match";
+    if (signupForm.address) { const aErr = validators.address(signupForm.address); if (aErr) newErrors.address = aErr; }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      setIsSigningUp(false);
-      return;
-    }
+    if (Object.keys(newErrors).length > 0) { setErrors(newErrors); setIsLoading(false); return; }
 
     try {
       const result = await signUp(signupForm.email, signupForm.password, {
-        name: signupForm.name.trim(),
-        address: signupForm.address.trim(),
+        name: signupForm.name,
+        address: signupForm.address,
         role: signupForm.role,
       });
       const { error, user: newUser } = result || {};
 
       if (error) {
-        toast({
-          title: "Signup failed",
-          description: error.message || "Unable to create account.",
-          variant: "destructive",
-        });
+        toast({ title: "Signup failed", description: error.message || "Unable to create account.", variant: "destructive" });
       } else {
-        toast({
-          title: "Account created!",
-          description: "Please check your email to verify your account.",
-        });
-        if (newUser?.name)
-          toast({ title: "Welcome!", description: `Welcome, ${newUser.name}!` });
-        // Optionally switch to login after successful signup:
-        setTab("login");
+        toast({ title: "Account created!", description: "Please check your email to verify your account." });
+        if (newUser?.name) toast({ title: "Welcome!", description: `Welcome, ${newUser.name}!` });
       }
     } catch (err) {
-      toast({
-        title: "Error",
-        description: err?.message ?? "An unexpected error occurred during signup.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: err?.message ?? "An unexpected error occurred during signup.", variant: "destructive" });
     } finally {
-      setIsSigningUp(false);
+      setIsLoading(false);
     }
   };
 
-  // render
+//render auth form
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <Card className="w-full max-w-md bg-white border border-gray-200 rounded-xl shadow">
-        <CardHeader className="text-center p-6">
-          <div className="mx-auto mb-3 w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center">
-            <span className="font-bold text-lg text-gray-700">SR</span>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+      <Card className="w-full max-w-md bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+        <CardHeader className="text-center p-8 pb-6">
+          <div className="mx-auto mb-4 w-16 h-16 rounded-xl bg-blue-50 flex items-center justify-center shadow-inner">
+            <span className="text-2xl font-bold text-blue-600">SR</span>
           </div>
-          <CardTitle className="text-xl font-semibold text-gray-900">
-            StoreRatings
-          </CardTitle>
-          <CardDescription className="text-sm text-gray-500">
-            Simple sign in / sign up
-          </CardDescription>
+          <CardTitle className="text-2xl font-bold text-gray-900">StoreRatings</CardTitle>
+          <CardDescription className="text-sm text-gray-600 mt-1">Sign in to your account or create a new one</CardDescription>
         </CardHeader>
 
-        <CardContent className="p-6">
-          <Tabs value={tab} onValueChange={setTab} className="w-full">
-            <TabsList className="grid grid-cols-2 gap-2 mb-4">
-              <TabsTrigger value="login" className="px-3 py-2 rounded text-sm border">
+        <CardContent className="px-8 pb-8 pt-0">
+          <Tabs defaultValue="login" className="w-full">
+            <TabsList className="grid grid-cols-2 gap-2 mb-6 bg-gray-100 p-1 rounded-lg">
+              <TabsTrigger 
+                value="login" 
+                className="px-4 py-2 rounded-md text-sm font-medium transition-colors data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm"
+              >
                 Login
               </TabsTrigger>
-              <TabsTrigger value="signup" className="px-3 py-2 rounded text-sm border">
+              <TabsTrigger 
+                value="signup" 
+                className="px-4 py-2 rounded-md text-sm font-medium transition-colors data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm"
+              >
                 Sign Up
               </TabsTrigger>
             </TabsList>
 
             {/* LOGIN */}
-            <TabsContent value="login">
-              <form onSubmit={handleLogin} className="space-y-4">
+            <TabsContent value="login" className="mt-0">
+              <form onSubmit={handleLogin} className="space-y-5">
                 <Field id="login-email" label="Email" error={errors.email}>
                   <Input
                     id="login-email"
                     type="email"
-                    placeholder="you@example.com"
+                    placeholder="name@example.com"
                     value={loginForm.email}
                     onChange={(e) =>
-                      setLoginForm((p) => ({ ...p, email: e.target.value }))
+                      setLoginForm({ ...loginForm, email: e.target.value })
                     }
-                    className="mt-1"
+                    className="h-11 text-base"
                     required
                   />
                 </Field>
 
-                <Field id="login-password" label="Password">
+                <Field id="login-password" label="Password" error={errors.password}>
                   <PasswordInput
                     id="login-password"
                     value={loginForm.password}
                     onChange={(e) =>
-                      setLoginForm((p) => ({ ...p, password: e.target.value }))
+                      setLoginForm({ ...loginForm, password: e.target.value })
                     }
-                    show={showLoginPassword}
-                    setShow={setShowLoginPassword}
+                    showPassword={showPassword}
+                    setShowPassword={setShowPassword}
+                    className="h-11 text-base"
                     required
                   />
                 </Field>
-                <Button 
+
+                <div className="pt-2">
+                  <Button 
                     type="submit" 
                     className="w-full h-11 text-base font-medium bg-blue-600 hover:bg-blue-700" 
-                    disabled={isSigningUp}
+                    disabled={isLoading}
                   >
-                    {isSigningUp? "Signing in..." : "Sign in"}
+                    {isLoading ? "Signing in..." : "Sign in"}
                   </Button>
+                </div>
+                
               </form>
             </TabsContent>
 
             {/* SIGNUP */}
             <TabsContent value="signup">
-              <form onSubmit={handleSignup} className="space-y-4">
+              <form onSubmit={handleSignup} className="space-y-5">
                 <Field id="signup-name" label="Full name" error={errors.name}>
-                  <Input
-                    id="signup-name"
-                    value={signupForm.name}
-                    onChange={(e) =>
-                      setSignupForm((p) => ({ ...p, name: e.target.value }))
-                    }
-                    placeholder="Your full name"
-                    className="mt-1"
-                    required
-                  />
+                  <Input id="signup-name" value={signupForm.name}
+                    onChange={(e) => setSignupForm((p) => ({ ...p, name: e.target.value }))} placeholder="Your full name" className="mt-1 h-11 text-base" required />
                 </Field>
 
                 <Field id="signup-email" label="Email" error={errors.email}>
-                  <Input
-                    id="signup-email"
-                    value={signupForm.email}
-                    onChange={(e) =>
-                      setSignupForm((p) => ({ ...p, email: e.target.value }))
-                    }
-                    placeholder="you@example.com"
-                    className="mt-1"
-                    required
-                  />
+                  <Input id="signup-email" value={signupForm.email}
+                    onChange={(e) => setSignupForm((p) => ({ ...p, email: e.target.value }))} placeholder="you@example.com" className="mt-1 h-11 text-base" required />
                 </Field>
 
                 <Field id="signup-password" label="Password" error={errors.password}>
-                  <PasswordInput
-                    id="signup-password"
-                    value={signupForm.password}
-                    onChange={(e) =>
-                      setSignupForm((p) => ({ ...p, password: e.target.value }))
-                    }
-                    show={showSignupPassword}
-                    setShow={setShowSignupPassword}
-                    placeholder="8–16 chars, 1 upper, 1 special"
-                    required
-                  />
+                  <PasswordInput id="signup-password" value={signupForm.password}
+                    onChange={(e) => setSignupForm((p) => ({ ...p, password: e.target.value }))}
+                    showPassword={showPassword} setShowPassword={setShowPassword} placeholder="8+ chars, 1 upper, 1 special" required className="h-11 text-base" />
                   <PasswordStrength password={signupForm.password} />
                 </Field>
 
-                <Field
-                  id="confirm-password"
-                  label="Confirm password"
-                  error={errors.confirmPassword}
-                >
+                <Field id="confirm-password" label="Confirm password" error={errors.confirmPassword}>
                   <div className="relative">
-                    <Input
-                      id="confirm-password"
-                      type={showConfirmPassword ? "text" : "password"}
+                    <Input 
+                      id="confirm-password" 
+                      type={showPassword ? "text" : "password"} 
                       value={signupForm.confirmPassword}
-                      onChange={(e) =>
-                        setSignupForm((p) => ({
-                          ...p,
-                          confirmPassword: e.target.value,
-                        }))
-                      }
-                      placeholder="Repeat password"
-                      className={`mt-1 pr-10 ${
-                        signupForm.password &&
-                        signupForm.confirmPassword &&
-                        signupForm.password !== signupForm.confirmPassword
-                          ? "border-red-500"
-                          : ""
-                      } ${
-                        signupForm.password &&
-                        signupForm.confirmPassword &&
-                        signupForm.password === signupForm.confirmPassword
-                          ? "border-green-500"
-                          : ""
-                      }`}
-                      required
+                      onChange={(e) => setSignupForm((p) => ({ ...p, confirmPassword: e.target.value }))}
+                      placeholder="Repeat password" 
+                      className={`mt-1 pr-10 h-11 text-base ${signupForm.password && signupForm.confirmPassword && signupForm.password !== signupForm.confirmPassword ? 'border-red-500' : ''} ${signupForm.password && signupForm.confirmPassword && signupForm.password === signupForm.confirmPassword ? 'border-green-500' : ''}`}
+                      required 
                     />
                     <button
                       type="button"
                       className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                      onClick={() => setShowConfirmPassword((s) => !s)}
+                      onClick={() => setShowPassword(!showPassword)}
                     >
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                   {signupForm.password && signupForm.confirmPassword && (
-                    <p
-                      className={`mt-1 text-xs ${
-                        signupForm.password === signupForm.confirmPassword
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {signupForm.password === signupForm.confirmPassword
-                        ? "Passwords match!"
-                        : "Passwords do not match"}
+                    <p className={`mt-1 text-xs ${signupForm.password === signupForm.confirmPassword ? 'text-green-600' : 'text-red-600'}`}>
+                      {signupForm.password === signupForm.confirmPassword 
+                        ? 'Passwords match!' 
+                        : 'Passwords do not match'}
                     </p>
                   )}
                 </Field>
 
                 <Field id="signup-address" label="Address (optional)" error={errors.address}>
-                  <Textarea
-                    id="signup-address"
-                    value={signupForm.address}
-                    onChange={(e) =>
-                      setSignupForm((p) => ({ ...p, address: e.target.value }))
-                    }
-                    className="mt-1"
-                    rows={3}
-                    maxLength={400}
-                  />
+                  <Textarea id="signup-address" value={signupForm.address}
+                    onChange={(e) => setSignupForm((p) => ({ ...p, address: e.target.value }))}
+                    className="mt-1" rows={3} maxLength={400} />
                 </Field>
 
                 <Field id="signup-role" label="Account type" className="mb-4">
@@ -488,9 +350,11 @@ export default function Auth() {
                   </div>
                 </Field>
 
-                <Button type="submit" className="w-full h-11 text-base font-medium bg-blue-600 hover:bg-blue-700" disabled={isSigningUp}>
-                    {isSigningUp ? "Creating account..." : "Create Account"}
+                <div className="pt-2">
+                  <Button type="submit" className="w-full h-11 text-base font-medium bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
+                    {isLoading ? "Creating account..." : "Create Account"}
                   </Button>
+                </div>
               </form>
             </TabsContent>
           </Tabs>

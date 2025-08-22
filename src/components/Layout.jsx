@@ -11,7 +11,6 @@ export function Layout({ children }) {
       <div className="min-h-screen bg-surface">
         <AppHeader />
         <main>{children}</main>
-        <main>{children}</main> {/* main content */}
       </div>
     );
   }

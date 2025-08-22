@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { LogOut, Menu } from "lucide-react"; // 👈 added Menu icon
+import { LogOut, Menu } from "lucide-react"; 
 import { useNavigate } from "react-router-dom";
 
 export function AppHeader() {
@@ -37,7 +37,6 @@ export function AppHeader() {
     <header className="sticky top-0 z-50 w-full bg-white/30 backdrop-blur-md border-b border-gray-200">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-14 items-center justify-between">
-          {/* LEFT: Sidebar trigger + app title */}
           <div className="flex items-center gap-3">
             <SidebarTrigger
               className="btn btn-ghost p-2 rounded-md text-slate-700 hover:bg-gray-100 flex items-center justify-center"

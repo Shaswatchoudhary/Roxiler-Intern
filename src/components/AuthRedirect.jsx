@@ -8,7 +8,7 @@ export function AuthRedirect() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
+  useEffect(() => {//useEffect is used to update the state when the user's authentication state changes
     if (!loading) {
       if (user && profile) {
         const from =

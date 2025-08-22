@@ -12,9 +12,9 @@ import {
 const navigationConfig = {
   admin: [
     { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
-    { title: "Users", url: "/admin/users", icon: Users },
-    { title: "Stores", url: "/admin/stores", icon: Store },
-    { title: "Ratings", url: "/admin/ratings", icon: Star },
+    { title: "Users", url: "/admin/users", icon: Users },// users
+    { title: "Stores", url: "/admin/stores", icon: Store },// stores
+    { title: "Ratings", url: "/admin/ratings", icon: Star },// ratings
   ],
   store_owner: [
     { title: "Dashboard", url: "/owner/dashboard", icon: LayoutDashboard },
@@ -27,9 +27,9 @@ const navigationConfig = {
 };
 
 export function AppSidebar() {
-  const { profile } = useAuth();
-  const { state } = useSidebar();
-  const location = useLocation();
+  const { profile } = useAuth();//profile is the profile of the user
+  const { state } = useSidebar();//state is the state of the sidebar
+  const location = useLocation();//location is the location of the user
 
   if (!profile) return null;
 
